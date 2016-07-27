@@ -189,7 +189,7 @@ app.post('/fb', function (req, res) {
   var data = req.body;
   // console.log(data);
   var message_event = data.entry[0].messaging;
-
+  res.sendStatus(200);
   const sessionId = findOrCreateSession(sender);
 
   for (var i=0; i<message_event.length; i++) {
@@ -247,7 +247,7 @@ app.post('/fb', function (req, res) {
       execute(sender, message, sessionId);
 
     }
-    res.sendStatus(200);
+    
 
   }
 });
