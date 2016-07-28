@@ -1,9 +1,9 @@
 'use strict';
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const request = require('request');
-var nlp = require('./nlp.js')
+const express = require('express'); //to set up server
+const bodyParser = require('body-parser'); // to parse json request
+const request = require('request'); //send request
+var nlp = require('./nlp.js'); //to filter intent
 // Webserver parameter
 const PORT = process.env.PORT || 8445;
 
@@ -18,6 +18,7 @@ if (!FB_PAGE_TOKEN) {
 }
 const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
 
+// set up server
 const app = express();
 app.set('port', PORT);
 app.listen(app.get('port'));
@@ -99,6 +100,7 @@ const fbReq = request.defaults({
   headers: {'Content-Type': 'application/json'},
 });
 
+//function to send message
 const fbMessage = (recipientId, msg, cb) => {
   const opts = {
     form: {
@@ -117,6 +119,7 @@ const fbMessage = (recipientId, msg, cb) => {
   });
 };
 
+//function to send message with 2 buttons
 const fbMessageWith2Buttons = (recipientId, msg, val1, val2, cb) => {
   const opts = {
     form: {
@@ -154,6 +157,7 @@ const fbMessageWith2Buttons = (recipientId, msg, val1, val2, cb) => {
   });
 };
 
+// Function to send message with yes/no reply
 const fbMessageQuickReply = (recipientId, msg, cb) => {
   const opts = {
     form: {
@@ -187,9 +191,7 @@ const fbMessageQuickReply = (recipientId, msg, cb) => {
 //receive message
 app.post('/fb', function (req, res) {
   var data = req.body;
-  // console.log(data);
   var message_event = data.entry[0].messaging;
-
   const sessionId = findOrCreateSession(sender);
 
   for (var i=0; i<message_event.length; i++) {
@@ -198,7 +200,8 @@ app.post('/fb', function (req, res) {
     var sender = event.sender.id;
     // console.log("sender is " + sender);
     // console.log("message is " + message);
-    // console.log(event);
+
+    // For quick reply to yes/no question
     if (event.message && event.message.quick_reply){
       console.log('ere ' + sessions[sessionId].intent);
       switch(sessions[sessionId].intent) {
@@ -216,6 +219,7 @@ app.post('/fb', function (req, res) {
         break;
       }
     }
+    // For reply to message with buttons
     else if (event.postback) {
       switch(sessions[sessionId].intent) {
         case 'pizza':
@@ -239,6 +243,7 @@ app.post('/fb', function (req, res) {
         }
       }
     }
+    // For reply to normal message
     else if (event.message && event.message.text && !event.message.is_echo && !event.message.quick_reply && !event.postback) {
 
       var message = event.message.text.toUpperCase();
